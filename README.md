@@ -214,6 +214,8 @@ build-capacitor-android.bat "C:\xampp\htdocs\iwd_attendance" debug
 
 Then install `app-debug.apk` on your phone and test.
 
+
+
 ---
 
 ## Notes
@@ -222,3 +224,8 @@ Then install `app-debug.apk` on your phone and test.
 - **Android only** (not iOS)  
 - Does not replace Quasar CLI — it automates the Capacitor Android APK path  
 - Safe to keep next to your XAMPP `htdocs` projects and reuse for every Quasar + Capacitor app  
+
+<img width="797" height="481" alt="image" src="https://github.com/user-attachments/assets/779f7561-410e-4296-a6eb-5eb10b6faba1" />
+
+<img width="948" height="512" alt="image" src="https://github.com/user-attachments/assets/22d08a83-7b00-4570-b4b3-70e6a19a1d34" />
+
