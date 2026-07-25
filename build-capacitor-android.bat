@@ -553,11 +553,7 @@ exit /b 0
 :show_banner
 if "%BANNER_SHOWN%"=="1" exit /b 0
 set "BANNER_SHOWN=1"
-chcp 65001 >nul 2>&1
-echo.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build-capacitor-android-banner.ps1"
-echo %DIM%              Android APK Builder  -  no Android Studio%RST%
-echo.
 exit /b 0
 
 :ensure_npm

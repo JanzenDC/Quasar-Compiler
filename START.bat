@@ -111,13 +111,12 @@ endlocal
 exit /b 0
 
 :banner
-chcp 65001 >nul 2>&1
 if exist "%~dp0build-capacitor-android-banner.ps1" (
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build-capacitor-android-banner.ps1"
 ) else (
   echo.
-  echo   QUASAR CAPACITOR BUILDER
+  echo   CAPACITOR BUILDER
+  echo   Powered by Nexus IT Solutions Inc.
+  echo.
 )
-echo %DIM%              Friendly Android APK builder  -  no Android Studio%RST%
-echo.
 exit /b 0
