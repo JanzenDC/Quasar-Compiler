@@ -239,6 +239,12 @@ popd
 
 echo.
 echo   %BD%[3/3]%RST% Building %MODE% APK with Gradle...
+call :ensure_sdk_props
+if errorlevel 1 (
+  popd
+  pause
+  exit /b 1
+)
 pushd "%PROJECT_DIR%\src-capacitor\android"
 if /I "%MODE%"=="debug" (
   call gradlew.bat assembleDebug
@@ -591,4 +597,57 @@ if not "!NPM_EXIT!"=="0" (
 )
 
 echo     Done - %NPM_LABEL% dependencies installed
+exit /b 0
+
+REM ------------------------------------------------------------
+REM ensure_sdk_props - auto-locate Android SDK for Gradle
+REM You do NOT add this by hand. Gradle needs sdk.dir or ANDROID_HOME.
+REM ------------------------------------------------------------
+:ensure_sdk_props
+set "LP=%PROJECT_DIR%\src-capacitor\android\local.properties"
+set "FOUND_SDK="
+
+REM 1) Environment
+if defined ANDROID_HOME if exist "%ANDROID_HOME%\platform-tools" set "FOUND_SDK=%ANDROID_HOME%"
+if not defined FOUND_SDK if defined ANDROID_SDK_ROOT if exist "%ANDROID_SDK_ROOT%\platform-tools" set "FOUND_SDK=%ANDROID_SDK_ROOT%"
+
+REM 2) Common Windows install locations
+if not defined FOUND_SDK if exist "%LOCALAPPDATA%\Android\Sdk\platform-tools" set "FOUND_SDK=%LOCALAPPDATA%\Android\Sdk"
+if not defined FOUND_SDK if exist "%USERPROFILE%\AppData\Local\Android\Sdk\platform-tools" set "FOUND_SDK=%USERPROFILE%\AppData\Local\Android\Sdk"
+if not defined FOUND_SDK if exist "%ProgramFiles%\Android\Android Studio\sdk\platform-tools" set "FOUND_SDK=%ProgramFiles%\Android\Android Studio\sdk"
+if not defined FOUND_SDK if exist "%SystemDrive%\Android\Sdk\platform-tools" set "FOUND_SDK=%SystemDrive%\Android\Sdk"
+
+REM 3) Already written by a previous build?
+if not defined FOUND_SDK if exist "%LP%" (
+  for /f "usebackq tokens=1,* delims==" %%A in ("%LP%") do (
+    if /I "%%A"=="sdk.dir" (
+      set "SDK_FROM_FILE=%%B"
+      set "SDK_FROM_FILE=!SDK_FROM_FILE:/=\!"
+      if exist "!SDK_FROM_FILE!\platform-tools" set "FOUND_SDK=!SDK_FROM_FILE!"
+    )
+  )
+)
+
+if not defined FOUND_SDK (
+  echo   ERROR: Android SDK not found automatically.
+  echo   Install Android Studio once ^(SDK only is enough^).
+  echo   Usual location: %%LOCALAPPDATA%%\Android\Sdk
+  exit /b 1
+)
+
+REM Export for this build session so Gradle can find it without manual setup
+set "ANDROID_HOME=!FOUND_SDK!"
+set "ANDROID_SDK_ROOT=!FOUND_SDK!"
+set "PATH=!FOUND_SDK!\platform-tools;!FOUND_SDK!\tools;!PATH!"
+
+REM Also write local.properties ^(auto; gitignored^) - Gradle prefers this file
+set "SDK_DIR=!FOUND_SDK:\=/!"
+(
+  echo ## Auto-located by Capacitor Builder - do not edit by hand
+  echo ## Powered by Nexus IT Solutions Inc.
+  echo sdk.dir=!SDK_DIR!
+) > "%LP%"
+
+echo     OK - Android SDK auto-located
+echo     !FOUND_SDK!
 exit /b 0
